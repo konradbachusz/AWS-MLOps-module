@@ -24,6 +24,7 @@ module "MLOps" {
   endpoint_name           = "classification-model-endpoint"
   sagemaker_instance_type = "ml.m4.xlarge"
   model_instance_count    = 1
+  tuning_metric = "AUC"
 } 
 ```
 
@@ -82,4 +83,27 @@ No resources.
 | <a name="output_sagemaker_algorithm_choice"></a> [sagemaker\_algorithm\_choice](#output\_sagemaker\_algorithm\_choice) | the sagemaker algorithm choice |
 | <a name="output_sagemaker_endpoint_name"></a> [sagemaker\_endpoint\_name](#output\_sagemaker\_endpoint\_name) | Model endpoint name |
 | <a name="output_sagemaker_model_name"></a> [sagemaker\_model\_name](#output\_sagemaker\_model\_name) | The name of the model |
+
+## Destroying Resources
+After creating the resources made using this the module, the resources: 
+- Sagemaker model 
+- Sagemaker Endpoint  
+- Endpoint configuration
+  
+Will not be tracked by your Terraform state file so if you decide to run "terraform destroy" these resources will not be deleted.
+
+To destroy these resourses we recommend that you add these commands to your CI/CD pipeline:
+
+```bash
+aws sagemaker delete-model --model-name < demo-regression-model >
+aws sagemaker delete-endpoint-config --endpoint-config-name < demo-regression-model-config >
+aws sagemaker delete-endpoint --endpoint-name < demo-regression-model >    
+```
+
+But before this you will need to add your AWS credentials to the environment if you have not do already:
+```bash
+aws-access-key-id: < aws-access-key-id >
+aws-secret-access-key: < aws-secret-access-key >
+aws-region: < region >
+```
 <!-- END_TF_DOCS -->
