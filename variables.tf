@@ -1,49 +1,71 @@
 ##########################################
-# Common
+# Naming and Tagging
 ##########################################
 
+variable "resource_naming_prefix" {
+  description = "Naming prefix to be applied to all resources created by this module"
+  type        = string
+}
 variable "tags" {
   description = "Tags applied to your resources"
   default     = {}
-}
-
-variable "region" {
-  description = "AWS deployment region"
-  type        = string
-}
-
-variable "account_id" {
-  description = "AWS Account ID"
-  type        = string
+  type        = map(string)
 }
 
 ##########################################
 # Sagemaker
 ##########################################
 
-variable "model_name" {
-  description = "Name of the Sagemaker model"
+variable "sagemaker_instance_type" {
+  description = "The Sagemaker notebook instance type to be created. Must be a valid EC2 instance type"
+  default     = "ml.t2.medium"
   type        = string
-  default     = ""
+}
+variable "model_instance_count" {
+  description = "The initial number of instances to serve the model endpoint"
+  type        = number
+  default     = 1
 }
 
 ##########################################
 # S3
 ##########################################
-variable "data_location_s3" {
-  description = "Location of the data in s3 bucket"
+
+variable "data_s3_bucket" {
+  description = "The name of an S3 bucket within which training data is located."
   type        = string
 }
-
+variable "data_s3_bucket_encryption_key_arn" {
+  description = "The ARN of the KMS key using which training data is encrypted in S3, if such a key exists."
+  type        = string
+  default     = ""
+  validation {
+    condition     = (substr(var.data_s3_bucket_encryption_key_arn, 0, 7) == "arn:aws:") || (var.data_s3_bucket_encryption_key_arn == "")
+    error_message = "The data_s3_bucket_encryption_key_arn value must be a valid ARN, starting with \"arn:aws:\"."
+  }
+}
+variable "data_location_s3" {
+  description = "The path to a file in the data S3 bucket within which training data is located. Should be in the format /<path>/<filename>. If the file is in the root of the bucket, this should be set to /<filename> only."
+  type        = string
+  validation {
+    condition     = substr(var.data_location_s3, 0, 1) == "/"
+    error_message = "The data_location_s3 value must begin with /."
+  }
+}
 
 ##########################################
 # Glue
 ##########################################
-variable "retraining_schedule" {
-  description = "Cron expression of the model retraing frequency"
-  type        = string
-}
 
+variable "retraining_schedule" {
+  description = "Cron expression for the model retraining frequency in the AWS format. See https://docs.aws.amazon.com/lambda/latest/dg/services-cloudwatchevents-expressions.html for details"
+  type        = string
+  default     = ""
+  validation {
+    condition     = contains(["cron(", "rate("], substr(var.retraining_schedule, 0, 4)) || (var.retraining_schedule == "")
+    error_message = "The retraining_schedule value must begin with \"cron(\" or \"rate(\"."
+  }
+}
 variable "retrain_model_bool" {
   description = "Boolean to indicate if the retraining pipeline shoud be added"
   type        = bool
@@ -55,17 +77,9 @@ variable "retrain_model_bool" {
 ##########################################
 
 variable "model_target_variable" {
-  description = "The dependent variable (or 'label') that the regression model aims to predict. This should be a column name in the dataset."
+  description = "The dependent variable (or 'label') that the model aims to predict. This should be a column name in the dataset."
   type        = string
 }
-
-
-variable "pycaret_ecr_name" {
-  description = "Name of ECR repository that will be storing pycaret's container image for launching model"
-  type        = string
-}
-
-
 variable "algorithm_choice" {
   description = "Machine learning problem type e.g classification, regression, clustering, anomaly, time_series"
   type        = string
@@ -74,22 +88,6 @@ variable "algorithm_choice" {
     error_message = "Allowed values for algorithm_choice are \"classification\", \"regression\", \"clustering\",  \"anomaly\", or \"time_series\"."
   }
 }
-
-variable "endpoint_name" {
-  description = "name of the endpoint for prediction"
-  type        = string
-}
-
-variable "sagemaker_instance_type" {
-  description = "the sagemaker instance type that is being created"
-  type        = string
-}
-
-variable "model_instance_count" {
-  description = "The initial number of instances to run the model"
-  type        = number
-}
-
 variable "tuning_metric" {
   description = "The metric user want to focus when tuning hyperparameter"
   type        = string

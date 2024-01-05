@@ -1,7 +1,7 @@
 name: "MLOps CICD Pipeline"
 on: push
 
-jobs: 
+jobs:
   code-quality:
     runs-on: ubuntu-latest
     steps:
@@ -19,10 +19,10 @@ jobs:
 
       - name: Run Pylint
         run: |
-          pylint . --errors-only 
+          pylint . --errors-only
 
       - name: Run Flake8
-        run: | 
+        run: |
           flake8 . --count --show-source --statistics --ignore=E501
 
       - name: Terraform Init
@@ -44,12 +44,12 @@ jobs:
         uses: terraform-linters/setup-tflint@v3
         with:
           tflint_version: latest
-          
+
       - name: Run TFLint
         working-directory: .
         run: |
           tflint --init
-          tflint -f compact --recursive --disable-rule=terraform_typed_variables 
+          tflint -f compact --recursive
 
   tests:
     runs-on: ubuntu-latest
@@ -66,14 +66,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r .github/workflows/dev-requirements.txt
 
-      - name: Run Pytest 
+      - name: Run Pytest
         run: |
-          pytest tests/ 
+          pytest tests/
 
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.19'
+          go-version: "1.19"
 
       - name: Get Terratest Dependency
         run: |
@@ -93,14 +93,13 @@ jobs:
       security-events: write
     steps:
       - uses: actions/checkout@v3
-      
-      - name: tfsec 
+
+      - name: tfsec
         uses: aquasecurity/tfsec-sarif-action@v0.1.4
         with:
-          sarif_file: tfsec.sarif          
+          sarif_file: tfsec.sarif
 
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v2
         with:
-          sarif_file: tfsec.sarif         
-
+          sarif_file: tfsec.sarif

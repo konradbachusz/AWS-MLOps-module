@@ -4,12 +4,6 @@ USER root
 
 LABEL maintainer Amazon AI <sage-learner@amazon.com>
 
-ARG MODEL_NAME
-ARG MODEL_TYPE
-
-ENV MODEL_NAME=${MODEL_NAME}
-ENV MODEL_TYPE=${MODEL_TYPE}
-
 RUN apt-get clean && \
     apt-get -q update && \
     apt-get -q install -y --no-install-recommends --fix-missing \

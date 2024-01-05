@@ -1,19 +1,54 @@
-output "sagemaker_model_name" {
-  description = "The name of the model"
-  value       = module.sagemaker.model_name
+# ECR
+output "ecr_repository" {
+  description = "The ECR repository Terraform object."
+  value       = module.ecr.repository
 }
 
-output "ecr_name" {
-  description = "The name of the ecr repo"
-  value       = module.ecr.ecr_name
+output "ecr_encryption_key" {
+  description = "The ECR repository encryption KMS key Terraform object."
+  value       = module.ecr.encryption_key
+}
+
+# Glue
+output "glue_retraining_job" {
+  description = "The Glue retraining job Terraform object."
+  value       = one(module.retraining_job[*].retraining_job)
+}
+
+output "glue_retraining_role" {
+  description = "The Glue retraining job IAM role Terraform object."
+  value       = one(module.retraining_job[*].retraining_role)
+}
+
+# S3
+output "config_bucket" {
+  description = "Config S3 Bucket Terraform object"
+  value       = module.s3.config_bucket
+}
+
+output "model_bucket" {
+  description = "Model S3 Bucket Terraform object"
+  value       = module.s3.model_bucket
+}
+
+output "s3_encryption_key" {
+  description = "S3 encryption KMS key Terraform Object"
+  value       = module.s3.encryption_key
+}
+
+# Sagemaker
+output "sagemaker_notebook_instance" {
+  description = "Sagemaker notebook instance Terraform object"
+  value       = module.sagemaker.notebook_instance
 }
 
 output "sagemaker_endpoint_name" {
-  description = "Model endpoint name"
-  value       = module.sagemaker.sagemaker_endpoint_name
+  description = "Sagemaker model endpoint name"
+  value       = module.sagemaker.endpoint_name
 }
 
-output "sagemaker_algorithm_choice" {
-  description = "the sagemaker algorithm choice"
-  value       = module.sagemaker.sagemaker_algorithm_choice
+output "sagemaker_model_name" {
+  description = "Sagemaker model name"
+  value       = module.sagemaker.model_name
 }
+
